@@ -2,7 +2,6 @@
 
 import { useState } from 'react';
 import { createUser } from '@/app/actions/user';
-import { Role } from '@prisma/client';
 
 export default function UserForm({ schools }: { schools: { id: string; name: string }[] }) {
   const [loading, setLoading] = useState(false);

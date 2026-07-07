@@ -3,7 +3,6 @@
 import { prisma } from '@/lib/prisma';
 import bcrypt from 'bcryptjs';
 import { revalidatePath } from 'next/cache';
-import { Role } from '@prisma/client';
 
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
@@ -18,7 +17,7 @@ export async function createUser(formData: FormData) {
   const name = formData.get('name') as string;
   const email = formData.get('email') as string;
   const password = formData.get('password') as string;
-  const role = formData.get('role') as Role;
+  const role = formData.get('role') as string;
   const schoolId = formData.get('schoolId') as string;
 
   if (!name || !email || !password || !role) {
