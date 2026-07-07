@@ -11,26 +11,18 @@ export const authOptions: NextAuthOptions = {
         email: { label: "Email", type: "email", placeholder: "admin@katalystzedu.com" },
         password: { label: "Password", type: "password" }
       },
-      async authorize(credentials, req) {
-        if (!credentials?.email || !credentials?.password) {
-          return null;
-        }
+      async authorize(credentials) {
+        if (!credentials?.email || !credentials?.password) return null;
 
         const user = await prisma.user.findUnique({
-          where: {
-            email: credentials.email
-          }
+          where: { email: credentials.email }
         });
 
-        if (!user) {
-          return null;
-        }
+        if (!user) return null;
 
         const isPasswordValid = await bcrypt.compare(credentials.password, user.password);
 
-        if (!isPasswordValid) {
-          return null;
-        }
+        if (!isPasswordValid) return null;
 
         return {
           id: user.id,
@@ -42,12 +34,8 @@ export const authOptions: NextAuthOptions = {
       }
     })
   ],
-  session: {
-    strategy: "jwt"
-  },
-  pages: {
-    signIn: "/login",
-  },
+  session: { strategy: "jwt" },
+  pages: { signIn: "/login" },
   callbacks: {
     async jwt({ token, user }) {
       if (user) {
@@ -65,5 +53,7 @@ export const authOptions: NextAuthOptions = {
       }
       return session;
     }
-  }
+  },
+  // THIS IS THE CRITICAL FIX FOR THE VERCEL BUILD ERROR:
+  secret: process.env.NEXTAUTH_SECRET || "fallback_secret_just_for_building",
 };
