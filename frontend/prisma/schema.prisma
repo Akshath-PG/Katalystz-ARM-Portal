@@ -1,0 +1,173 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = "file:./dev.db"
+}
+
+model School {
+  id          String   @id @default(uuid())
+  name        String
+  address     String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  users              User[]
+  classes            Class[]
+  subjects           Subject[]
+  meetingMinutes     MeetingMinute[]
+  kpiDashboards      KpiDashboard[]
+}
+
+model User {
+  id        String   @id @default(uuid())
+  email     String   @unique
+  password  String
+  name            String
+  role            String
+  passwordHistory String   @default("[]") // JSON string of last 3 password hashes
+  schoolId        String?  // Nullable for KATALYST_ADMIN
+  school    School?  @relation(fields: [schoolId], references: [id])
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Role specific relations
+  classesAsTeacher         Class[]           @relation("ClassTeacher")
+  lessonPlans              LessonPlan[]
+  attendanceLogs           AttendanceLog[]
+  observationsMade         ObservationNote[] @relation("Observer")
+  observationsReceived     ObservationNote[] @relation("ObservedTeacher")
+  substitutionsGiven       SubstitutionLog[] @relation("SubstitutingTeacher")
+  substitutionsTaken       SubstitutionLog[] @relation("AbsentTeacher")
+}
+
+model Class {
+  id        String   @id @default(uuid())
+  schoolId  String
+  school    School   @relation(fields: [schoolId], references: [id])
+  name      String   // e.g., "Grade 10 - A"
+  teacherId String?
+  teacher   User?    @relation("ClassTeacher", fields: [teacherId], references: [id])
+  
+  subjects       Subject[]
+  attendanceLogs AttendanceLog[]
+  students       Student[]
+}
+
+model Student {
+  id        String   @id @default(uuid())
+  name      String
+  classId   String
+  class     Class    @relation(fields: [classId], references: [id])
+  
+  assessments       AssessmentScore[]
+  remedialLogs      RemedialLog[]
+}
+
+model Subject {
+  id        String   @id @default(uuid())
+  schoolId  String
+  school    School   @relation(fields: [schoolId], references: [id])
+  name      String
+  classId   String
+  class     Class    @relation(fields: [classId], references: [id])
+  
+  lessonPlans       LessonPlan[]
+  assessments       Assessment[]
+}
+
+model LessonPlan {
+  id               String   @id @default(uuid())
+  teacherId        String
+  teacher          User     @relation(fields: [teacherId], references: [id])
+  subjectId        String
+  subject          Subject  @relation(fields: [subjectId], references: [id])
+  date             DateTime
+  topic            String
+  completionStatus String   // e.g., PENDING, COMPLETED, DELAYED
+  reflection       String?
+  audited          Boolean  @default(false)
+  
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+}
+
+model AttendanceLog {
+  id        String   @id @default(uuid())
+  teacherId String
+  teacher   User     @relation(fields: [teacherId], references: [id])
+  classId   String
+  class     Class    @relation(fields: [classId], references: [id])
+  date      DateTime
+  present   Int
+  absent    Int
+}
+
+model RemedialLog {
+  id        String   @id @default(uuid())
+  studentId String
+  student   Student  @relation(fields: [studentId], references: [id])
+  topic     String
+  date      DateTime
+  notes     String?
+}
+
+model Assessment {
+  id        String   @id @default(uuid())
+  subjectId String
+  subject   Subject  @relation(fields: [subjectId], references: [id])
+  title     String
+  type      String   // e.g., MCQ, Theory
+  date      DateTime
+
+  scores    AssessmentScore[]
+}
+
+model AssessmentScore {
+  id           String     @id @default(uuid())
+  assessmentId String
+  assessment   Assessment @relation(fields: [assessmentId], references: [id])
+  studentId    String
+  student      Student    @relation(fields: [studentId], references: [id])
+  score        Float
+}
+
+model MeetingMinute {
+  id        String   @id @default(uuid())
+  schoolId  String
+  school    School   @relation(fields: [schoolId], references: [id])
+  date      DateTime
+  title     String
+  notes     String
+}
+
+model ObservationNote {
+  id                String   @id @default(uuid())
+  observerId        String
+  observer          User     @relation("Observer", fields: [observerId], references: [id])
+  observedTeacherId String
+  observedTeacher   User     @relation("ObservedTeacher", fields: [observedTeacherId], references: [id])
+  date              DateTime
+  notes             String
+}
+
+model SubstitutionLog {
+  id                    String   @id @default(uuid())
+  absentTeacherId       String
+  absentTeacher         User     @relation("AbsentTeacher", fields: [absentTeacherId], references: [id])
+  substitutingTeacherId String
+  substitutingTeacher   User     @relation("SubstitutingTeacher", fields: [substitutingTeacherId], references: [id])
+  date                  DateTime
+  period                String
+}
+
+model KpiDashboard {
+  id        String   @id @default(uuid())
+  schoolId  String
+  school    School   @relation(fields: [schoolId], references: [id])
+  month     DateTime
+  metrics   String   // Store calculated metrics as JSON string
+  approved  Boolean  @default(false) // Approved by Principal
+}
