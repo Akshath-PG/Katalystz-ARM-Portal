@@ -9,6 +9,7 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@neondatabase/serverless": "^1.1.0",
     "@prisma/client": "^5.13.0",
     "@types/zxcvbn": "^4.4.5",
     "bcryptjs": "^3.0.3",
