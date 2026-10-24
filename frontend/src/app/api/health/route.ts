@@ -13,8 +13,11 @@ export async function GET() {
   };
 
   try {
-    const adminCount = await prisma.user.count({ where: { role: 'KATALYST_ADMIN' } });
-    return NextResponse.json({ database: 'connected', adminAccount: adminCount > 0, env });
+    const [adminCount, userCount] = await Promise.all([
+      prisma.user.count({ where: { role: 'KATALYST_ADMIN' } }),
+      prisma.user.count(),
+    ]);
+    return NextResponse.json({ database: 'connected', adminAccount: adminCount > 0, userCount, env });
   } catch (error) {
     const code = (error as { errorCode?: string; code?: string }).errorCode ?? (error as { code?: string }).code;
     return NextResponse.json(
