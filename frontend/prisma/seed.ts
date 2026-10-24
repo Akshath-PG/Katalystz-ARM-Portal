@@ -14,7 +14,16 @@ async function main() {
   });
 
   if (existingAdmin) {
-    console.log('Admin user already exists.');
+    // Set ADMIN_RESET_PASSWORD=true for one deploy to recover a lost admin password.
+    if (process.env.ADMIN_RESET_PASSWORD === 'true') {
+      await prisma.user.update({
+        where: { email: adminEmail },
+        data: { password: await bcrypt.hash(plainPassword, 10) }
+      });
+      console.log(`Admin password reset for ${adminEmail}.`);
+    } else {
+      console.log('Admin user already exists.');
+    }
     return;
   }
 
