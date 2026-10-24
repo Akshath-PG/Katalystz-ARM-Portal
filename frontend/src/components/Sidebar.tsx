@@ -1,6 +1,6 @@
 "use client";
 
-import { Building, LayoutDashboard, Settings, Users, FileText, Hexagon, LogOut } from "lucide-react";
+import { Building, LayoutDashboard, Settings, Users, FileText, Hexagon, LogOut, GraduationCap } from "lucide-react";
 import Link from "next/link";
 import { signOut } from "next-auth/react";
 import { usePathname } from "next/navigation";
@@ -11,6 +11,7 @@ export default function Sidebar() {
   const navItems = [
     { name: "Cross-School Analytics", href: "/", icon: LayoutDashboard },
     { name: "Manage Schools", href: "/schools", icon: Building },
+    { name: "LMS", href: "/lms", icon: GraduationCap },
     { name: "Admin Users", href: "/users", icon: Users },
     { name: "Audit Logs", href: "/logs", icon: FileText },
   ];
@@ -26,7 +27,7 @@ export default function Sidebar() {
       
       <nav className="flex-1 p-4 space-y-2">
         {navItems.map((item) => {
-          const isActive = pathname === item.href;
+          const isActive = item.href === "/" ? pathname === "/" : pathname.startsWith(item.href);
           const Icon = item.icon;
           return (
             <Link
