@@ -50,6 +50,17 @@ The primary application code for the portal is located in the `frontend` directo
    ```
    The portal will be running at [http://localhost:3000](http://localhost:3000).
 
+### ☁️ Deploying (Vercel + Neon, free tiers)
+
+1. **Import the repo in Vercel** ([vercel.com/new](https://vercel.com/new)) and set **Root Directory** to `frontend`.
+2. **Add the database:** in the Vercel project, open **Storage → Create/Connect → Neon** and connect it to the project. This sets `DATABASE_URL` and `DATABASE_URL_UNPOOLED` automatically.
+3. **Add environment variables** under **Settings → Environment Variables**:
+   - `NEXTAUTH_SECRET`: a long random string (e.g. `openssl rand -base64 32`)
+   - `NEXTAUTH_URL`: the site URL, e.g. `https://<project>.vercel.app`
+4. **Deploy.** The `vercel-build` script runs `prisma db push` and `prisma db seed`, so the tables and the first admin are created automatically (the admin is only created if it doesn't exist yet).
+5. **Log in** as `admin@katalystzedu.com` / `Password123!` and change the password right away. To use your own admin login instead, set `ADMIN_EMAIL` and `ADMIN_PASSWORD` in Vercel before the first deploy.
+6. Add data in the portal: **Manage Schools** → add a school → open it to add classes, subjects and students. Create staff accounts under **Admin Users**.
+
 ---
 
 ## 🌐 Katalystz Edu Group (Landing Page)

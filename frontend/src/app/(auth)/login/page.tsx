@@ -25,8 +25,11 @@ export default function LoginPage() {
         password,
       });
 
-      if (res?.error) {
+      if (res?.error === 'CredentialsSignin') {
         setError('Invalid email or password');
+      } else if (res?.error) {
+        // Anything else means the server failed, e.g. it could not reach the database.
+        setError('Sign-in failed on the server. Check /api/health for the database status.');
       } else {
         router.push('/');
         router.refresh();

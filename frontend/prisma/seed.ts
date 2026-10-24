@@ -4,8 +4,9 @@ const bcrypt = require('bcryptjs');
 const prisma = new PrismaClient();
 
 async function main() {
-  const adminEmail = 'admin@katalystzedu.com';
-  const plainPassword = 'Password123!';
+  // Override in the hosting environment to avoid the default credentials.
+  const adminEmail = process.env.ADMIN_EMAIL || 'admin@katalystzedu.com';
+  const plainPassword = process.env.ADMIN_PASSWORD || 'Password123!';
 
   // Check if admin already exists
   const existingAdmin = await prisma.user.findUnique({
@@ -13,7 +14,16 @@ async function main() {
   });
 
   if (existingAdmin) {
-    console.log('Admin user already exists.');
+    // Set ADMIN_RESET_PASSWORD=true for one deploy to recover a lost admin password.
+    if (process.env.ADMIN_RESET_PASSWORD === 'true') {
+      await prisma.user.update({
+        where: { email: adminEmail },
+        data: { password: await bcrypt.hash(plainPassword, 10) }
+      });
+      console.log(`Admin password reset for ${adminEmail}.`);
+    } else {
+      console.log('Admin user already exists.');
+    }
     return;
   }
 
@@ -29,8 +39,10 @@ async function main() {
   });
 
   console.log(`Created initial admin user: ${admin.email}`);
-  console.log(`Password: ${plainPassword}`);
-  console.log('PLEASE CHANGE THIS PASSWORD IMMEDIATELY AFTER LOGIN.');
+  if (!process.env.ADMIN_PASSWORD) {
+    console.log(`Password: ${plainPassword}`);
+    console.log('PLEASE CHANGE THIS PASSWORD IMMEDIATELY AFTER LOGIN.');
+  }
 }
 
 main()
