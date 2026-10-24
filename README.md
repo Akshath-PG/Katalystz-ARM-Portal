@@ -57,13 +57,8 @@ The primary application code for the portal is located in the `frontend` directo
 3. **Add environment variables** under **Settings → Environment Variables**:
    - `NEXTAUTH_SECRET`: a long random string (e.g. `openssl rand -base64 32`)
    - `NEXTAUTH_URL`: the site URL, e.g. `https://<project>.vercel.app`
-4. **Deploy.** The `vercel-build` script runs `prisma db push`, so the tables are created on the first deploy.
-5. **Create the first admin** once, from your machine, with the Neon connection string:
-   ```bash
-   cd frontend
-   DATABASE_URL="<neon url>" npm run db:seed
-   ```
-   Log in as `admin@katalystzedu.com` / `Password123!` and change the password right away.
+4. **Deploy.** The `vercel-build` script runs `prisma db push` and `prisma db seed`, so the tables and the first admin are created automatically (the admin is only created if it doesn't exist yet).
+5. **Log in** as `admin@katalystzedu.com` / `Password123!` and change the password right away. To use your own admin login instead, set `ADMIN_EMAIL` and `ADMIN_PASSWORD` in Vercel before the first deploy.
 6. Add data in the portal: **Manage Schools** → add a school → open it to add classes, subjects and students. Create staff accounts under **Admin Users**.
 
 ---
