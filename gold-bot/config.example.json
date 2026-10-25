@@ -1,0 +1,7 @@
+{
+  "program": "standard",
+  "commission_per_lot": 7.0,
+  "funded_qualifying_days": 4,
+  "funded_monthly_cap_pct": 4.0,
+  "force_flat_time": "16:45"
+}
