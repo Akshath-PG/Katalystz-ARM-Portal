@@ -1,0 +1,26 @@
+from __future__ import annotations
+
+from datetime import datetime
+from typing import Protocol
+
+from ..models import AccountSnapshot, BalanceOperation, OrderRequest, OrderResult, Position, SymbolSpec
+
+
+class Broker(Protocol):
+    def account(self) -> AccountSnapshot: ...
+
+    def positions(self) -> list[Position]: ...
+
+    def symbol_spec(self, symbol: str) -> SymbolSpec: ...
+
+    def closed_pnl(self, start: datetime, end: datetime) -> float:
+        """Net realized P&L (profit + swap + commission + fees) of deals in [start, end), UTC."""
+        ...
+
+    def balance_operations(self, start: datetime, end: datetime) -> list[BalanceOperation]: ...
+
+    def calc_margin(self, request: OrderRequest, price: float) -> float | None: ...
+
+    def send_order(self, request: OrderRequest) -> OrderResult: ...
+
+    def close_all(self, reason: str) -> list[OrderResult]: ...
